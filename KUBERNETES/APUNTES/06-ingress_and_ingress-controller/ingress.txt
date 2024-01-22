@@ -1,0 +1,50 @@
+Un ingress es un objeto de Kubernetes que proporciona reglas de enrutamiento que se usan para administrar el acceso externo a los servicios en un clúster. 
+Ingress facilita la definición de reglas de enrutamiento, rutas, alojamiento virtual basado en nombres, dominios o subdominios y otras funcionalidades para acceder dinámicamente a sus aplicaciones. 
+
+Pero, ¿cómo realiza un seguimiento de todas estas reglas y qué sucede cuando modifica un recurso de ingreso o agrega una nueva regla? Ahí es donde entra en juego un controlador de entrada o ingress-controller
+
+Un controlador o ingress-controller es una implementación que tiene la tarea de evaluar constantemente todas las reglas definidas en su clúster, administrar todas las redirecciones y determinar a dónde dirigir el tráfico según las reglas definidas en el recurso de ingress. Los controladores no vienen instalados en un clúster de Kubernetes de forma predeterminada, por lo que debe configurar uno usted mismo. 
+
+Hay varias implementaciones de controladores disponibles en la actualidad: nginx, HAproxy, Traefik, AKS Application Gateway Ingress Controller, etc, etc, ...
+
+En este artículo, aprenderá sobre los controladores de entrada NGINX y diez opciones de configuración útiles que puede agregar para que su aplicación sea más dinámica.
+
+
+
+
+Podemos desplegar varios ingress-controler en un mismo cluster:
+
+
+############################## MÚLTIPLES CONTROLADORES NGINX ############## ######################
+
+Cómo implementar varios controladores en el mismo clúster.
+
+Primero necesitamos descargar el archivo de implementación yaml de nginx
+
+        # wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.46.0/deploy/static/provider/baremetal/deploy.yaml
+
+Tenemos el deployment.yaml en el servidor RANCHER (10.108.240.70) en el directorio /root/kubernetes/configurations/ingress-nginx.
+
+Ahora copiamos deployment.yaml:
+
+        # cp deployment.yaml nginx-internal-deploy.yaml
+
+Y ahora tenemos que editar este archivo yaml para adaptarlo:
+
+        1) Tenemos que cambiar el nombre de los espacios de nombres
+        2) Tenemos que cambiar un argumento en el bloque args- --ingress-class=name_of_the_new_ingress_controler
+        3) Tenemos que cambiar en el bloque de servicios el tipo de servicio a LoadBalancer.
+
+
+Una vez realizados los cambios tenemos que desplegar el nginx-internal-deploy.yaml
+
+        # kubectl apply -f nginx-internal-deploy.yaml
+
+Para comprobar que todo ha ido bien:
+
+        # kubectl -n nombre_del_espacio_de_nombres obtener todo
+
+Y aquí podemos ver la IP del nuevo controlador de ingreso: en este caso EXTERNAL-IP 10.108.240.48
+
+NAME                                          TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
+service/nginx-internal-controller             LoadBalancer   10.106.75.228   10.108.240.48   80:32617/TCP,443:32195/TCP   2d15h

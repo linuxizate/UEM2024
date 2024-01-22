@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx
+  namespace: nginx-test
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: nginx.example.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: nginx-test-srvc
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
